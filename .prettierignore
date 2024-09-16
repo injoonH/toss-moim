@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# Turbo
+.turbo/
+
+# Vercel
+.vercel/
+
+# Build Outputs
+.next/
+build/
+dist/
+out/
+
+# Misc
+.DS_Store
+
+# Handlebars (SyntaxError: Cannot use mustaches in an elements tagname)
+**/*.hbs
