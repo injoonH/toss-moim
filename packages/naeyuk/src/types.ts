@@ -10,6 +10,13 @@ export type RowData = {
   }
 }
 
+export type TossVerifyError = {
+  code: string
+  message: string
+  debugMessage: string
+  errorLevel: string
+}
+
 export type ResponseType =
   | {
       ok: true
@@ -17,7 +24,5 @@ export type ResponseType =
     }
   | {
       ok: false
-      data: {
-        message: string
-      }
+      data: TossVerifyError
     }

@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio'
 import { z } from 'zod'
 
 import { Path, TOSS_VERIFY_DOCUMENT_URL } from './const'
-import { ResponseType, RowData } from './types'
+import type { ResponseType, RowData } from './types'
 
 const TABLE_PATH = 'thead + tbody'
 
@@ -49,10 +49,8 @@ export async function getTableData(
 
   if (!res.ok) {
     return {
-      ok: false,
-      data: {
-        message: (await res.json()).message,
-      },
+      ok: false as const,
+      data: await res.json(),
     }
   }
 
