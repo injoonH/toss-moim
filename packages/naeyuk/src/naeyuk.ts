@@ -1,5 +1,4 @@
 import * as cheerio from 'cheerio'
-import { isValid, parse } from 'date-fns'
 import { z } from 'zod'
 
 import { Path, TOSS_VERIFY_DOCUMENT_URL } from './const'
@@ -7,10 +6,11 @@ import { ResponseType, RowData } from './types'
 
 const TABLE_PATH = 'thead + tbody'
 
-function isDateValid(date: string) {
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/
-  const parsedDate = parse(date, 'yyyy-MM-dd', new Date())
-  return datePattern.test(date) && isValid(parsedDate)
+/**
+ * Format date to 'yyyy-MM-dd' format
+ */
+function formatDate(date: Date) {
+  return date.toLocaleDateString('en-CA')
 }
 
 function formatNumber(value: string) {
@@ -41,30 +41,22 @@ const dataSchema = z
   )
 
 export async function getTableData(
-  date: string,
+  date: Date,
   serial: string,
 ): Promise<ResponseType> {
-  if (!isDateValid(date)) {
+  const dateStr = formatDate(date)
+  const res = await fetch(`${TOSS_VERIFY_DOCUMENT_URL}/${dateStr}/${serial}`)
+
+  if (!res.ok) {
     return {
       ok: false,
       data: {
-        message: '올바르지 않은 날짜입니다.',
+        message: (await res.json()).message,
       },
     }
   }
 
-  const response = await fetch(`${TOSS_VERIFY_DOCUMENT_URL}/${date}/${serial}`)
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      data: {
-        message: (await response.json()).message,
-      },
-    }
-  }
-
-  const $table = cheerio.load(await response.text(), {
+  const $table = cheerio.load(await res.text(), {
     xml: true,
   })
 
@@ -86,7 +78,7 @@ export async function getTableData(
     })
 
   return {
-    ok: response.ok,
+    ok: res.ok,
     data: result,
   }
 }
