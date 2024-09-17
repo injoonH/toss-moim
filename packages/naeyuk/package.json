@@ -1,0 +1,13 @@
+{
+  "name": "@repo/naeyuk",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "date-fns": "^4.1.0",
+    "zod": "^3.23.8"
+  }
+}
