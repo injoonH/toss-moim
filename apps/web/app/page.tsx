@@ -11,7 +11,7 @@ const Home: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
-    const date = formData.get('date') as string
+    const date = new Date(formData.get('date') as string)
     const serial = formData.get('serial') as string
 
     setResponse(await getTableData(date, serial))
