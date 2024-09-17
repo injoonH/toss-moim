@@ -1,10 +1,8 @@
+import assert from 'assert'
 import * as cheerio from 'cheerio'
-import { z } from 'zod'
 
-import { Path, TOSS_VERIFY_DOCUMENT_URL } from './const'
-import type { ResponseType, RowData } from './types'
-
-const TABLE_PATH = 'thead + tbody'
+import { TOSS_VERIFY_DOCUMENT_URL } from './const'
+import type { ResponseType } from './types'
 
 /**
  * Format date to 'yyyy-MM-dd' format
@@ -17,29 +15,6 @@ function formatNumber(value: string) {
   return Number(value.replace(/,/g, ''))
 }
 
-const dataSchema = z
-  .object({
-    datetime: z.string(),
-    remarks: z.string(),
-    transactionAmount: z.string(),
-    balance: z.string(),
-    notes: z.string(),
-  })
-  .transform((data) => ({
-    ...data,
-    transactionAmount: formatNumber(data.transactionAmount),
-    balance: formatNumber(data.balance),
-  }))
-  .pipe(
-    z.object({
-      datetime: z.string(),
-      remarks: z.string(),
-      transactionAmount: z.number(),
-      balance: z.number(),
-      notes: z.string(),
-    }),
-  )
-
 export async function getTableData(
   date: Date,
   serial: string,
@@ -47,36 +22,36 @@ export async function getTableData(
   const dateStr = formatDate(date)
   const res = await fetch(`${TOSS_VERIFY_DOCUMENT_URL}/${dateStr}/${serial}`)
 
-  if (!res.ok) {
+  if (!res.ok)
     return {
-      ok: false as const,
+      ok: false,
       data: await res.json(),
     }
-  }
 
-  const $table = cheerio.load(await res.text(), {
-    xml: true,
+  const $ = cheerio.load(await res.text(), { xml: true })
+  const $rows = $('thead + tbody > tr').toArray()
+
+  // 각 행의 자식 태그의 텍스트만 추출
+  const data = $rows.map((row) => {
+    const texts = row.children
+      .map(
+        (node) =>
+          node.type === 'tag' &&
+          node.firstChild?.type === 'text' &&
+          node.firstChild.data,
+      )
+      .filter((node): node is string => !!node)
+
+    assert(texts.length === 5, `열 개수가 맞지 않아요: ${texts}`)
+
+    return {
+      datetime: texts[0]!!,
+      remarks: texts[1]!!,
+      transactionAmount: formatNumber(texts[2]!!),
+      balance: formatNumber(texts[3]!!),
+      notes: texts[4]!!,
+    }
   })
 
-  const result: RowData = {}
-  Array($table(`${TABLE_PATH}>tr`).length)
-    .fill(null)
-    .map((_, index) => {
-      const $data = $table(`${TABLE_PATH}>tr:nth-child(${index + 1})`)
-      const data = Path.reduce((acc, item) => {
-        return {
-          ...acc,
-          [item.name]: $data.find(item.path).text(),
-        }
-      }, {})
-      const parsed = dataSchema.safeParse(data)
-      if (parsed.success) {
-        result[index] = parsed.data
-      }
-    })
-
-  return {
-    ok: res.ok,
-    data: result,
-  }
+  return { ok: true, data }
 }
