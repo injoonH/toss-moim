@@ -9,5 +9,9 @@
     "cheerio": "^1.0.0",
     "date-fns": "^4.1.0",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "^5.6.2"
   }
 }
