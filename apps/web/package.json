@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@notionhq/client": "^2.2.15",
     "@repo/naeyuk": "workspace:*",
     "@repo/ui": "workspace:*",
     "next": "14.2.6",

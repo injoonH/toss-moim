@@ -1,13 +1,10 @@
-export type RowData = Record<
-  number,
-  {
-    datetime: string
-    remarks: string
-    transactionAmount: number
-    balance: number
-    notes: string
-  }
->
+export type RowData = {
+  datetime: string
+  remarks: string
+  transactionAmount: number
+  balance: number
+  notes: string
+}
 
 export type TossVerifyError = {
   code: string
@@ -19,7 +16,7 @@ export type TossVerifyError = {
 export type ResponseType =
   | {
       ok: true
-      data: RowData
+      data: RowData[]
     }
   | {
       ok: false
