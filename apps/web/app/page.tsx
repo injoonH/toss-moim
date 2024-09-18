@@ -1,9 +1,8 @@
 'use client'
 
 import { getTableData } from '@repo/naeyuk'
+import type { ResponseType } from '@repo/naeyuk/types'
 import { useState } from 'react'
-
-import type { ResponseType } from '../../../packages/naeyuk/src/types'
 
 const Home: React.FC = () => {
   const [response, setResponse] = useState<ResponseType | null>(null)
