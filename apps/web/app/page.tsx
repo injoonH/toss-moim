@@ -1,26 +1,17 @@
 'use client'
 
-import { getTableData } from '@repo/naeyuk'
-import type { ResponseType } from '@repo/naeyuk/types'
-import { useState } from 'react'
+import { useFormState } from 'react-dom'
+
+import { fetchNaeyuk } from './actions'
 
 const Home: React.FC = () => {
-  const [response, setResponse] = useState<ResponseType | null>(null)
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const date = new Date(formData.get('date') as string)
-    const serial = formData.get('serial') as string
-
-    setResponse(await getTableData(date, serial))
-  }
+  const [state, formAction] = useFormState(fetchNaeyuk, null)
 
   return (
     <main>
       <h1>토스 모임통장 거래 내역을 노션에 동기화 해주는 서비스예요.</h1>
       <form
-        onSubmit={async (e) => await handleSubmit(e)}
+        action={formAction}
         style={{
           display: 'flex',
           gap: '1rem',
@@ -39,13 +30,7 @@ const Home: React.FC = () => {
         </div>
       </form>
       <hr />
-      {!response ? (
-        <div>발급일자와 발급번호를 입력해 거래내역을 불러올 수 있어요.</div>
-      ) : response.ok ? (
-        <pre>{JSON.stringify(response.data, null, 2)}</pre>
-      ) : (
-        <div>{response.data.message}</div>
-      )}
+      {state && <pre>{JSON.stringify(state, null, 2)}</pre>}
     </main>
   )
 }
